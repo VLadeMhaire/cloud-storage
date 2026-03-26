@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureCloud - Safe & Simple Cloud Storage</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>SecureCloud</span>
+            </div>
+            <div class="nav-links">
+                <button id="authBtn" class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userEmail"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="storage-stats">
+                <h3><i class="fas fa-database"></i> Storage</h3>
+                <div class="storage-bar">
+                    <div class="storage-used" id="storageUsed"></div>
+                </div>
+                <p id="storageText">0 MB / 100 MB used</p>
+            </div>
+            
+            <div class="upload-section">
+                <label for="fileInput" class="upload-btn">
+                    <i class="fas fa-upload"></i> Upload Files
+                </label>
+                <input type="file" id="fileInput" multiple style="display: none;">
+                <div class="upload-progress" id="uploadProgress" style="display: none;">
+                    <div class="progress-bar"></div>
+                    <p id="progressText">Uploading...</p>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <h3><i class="fas fa-filter"></i> Filter</h3>
+                <select id="fileFilter">
+                    <option value="all">All Files</option>
+                    <option value="image">Images</option>
+                    <option value="document">Documents</option>
+                    <option value="video">Videos</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="search-section">
+                <input type="text" id="searchInput" placeholder="Search files...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </aside>
+
+        <!-- Main Content - File Grid -->
+        <main class="main-content">
+            <div class="files-header">
+                <h2><i class="fas fa-files"></i> My Files</h2>
+                <div class="view-toggle">
+                    <button id="gridView" class="active"><i class="fas fa-th"></i></button>
+                    <button id="listView"><i class="fas fa-list"></i></button>
+                </div>
+            </div>
+            
+            <div id="fileContainer" class="file-grid">
+                <!-- Files will be dynamically loaded here -->
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading your files...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for File Preview -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="previewContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
