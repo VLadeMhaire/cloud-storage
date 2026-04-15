@@ -3,100 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureCloud - Safe & Simple Cloud Storage</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Login System Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .message {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+        
+        .success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+        
+        .info {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .dashboard {
+            text-align: center;
+        }
+        
+        .dashboard h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            margin-top: 1rem;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+        
+        .user-info {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+    </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>SecureCloud</span>
-            </div>
-            <div class="nav-links">
-                <button id="authBtn" class="auth-btn">
-                    <i class="fas fa-sign-in-alt"></i> Sign In
-                </button>
-                <div class="user-info" id="userInfo" style="display: none;">
-                    <i class="fas fa-user-circle"></i>
-                    <span id="userEmail"></span>
+    <div class="container" id="app">
+        <!-- Login Form (shown by default) -->
+        <div id="loginView">
+            <h2>🔐 Login System</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter username" required>
                 </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <div id="message" class="message"></div>
+            <div class="info">
+                <strong>Demo Accounts:</strong><br>
+                admin / admin123<br>
+                user / user123<br>
+                guest / guest
             </div>
         </div>
-    </nav>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="storage-stats">
-                <h3><i class="fas fa-database"></i> Storage</h3>
-                <div class="storage-bar">
-                    <div class="storage-used" id="storageUsed"></div>
+        
+        <!-- Dashboard (hidden by default) -->
+        <div id="dashboardView" style="display: none;">
+            <div class="dashboard">
+                <h2>✅ Dashboard</h2>
+                <div class="user-info">
+                    <strong>Welcome, <span id="displayName"></span>!</strong><br>
+                    You are now logged in.<br>
+                    <small>Session expires when you close the browser</small>
                 </div>
-                <p id="storageText">0 MB / 100 MB used</p>
+                <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
-            
-            <div class="upload-section">
-                <label for="fileInput" class="upload-btn">
-                    <i class="fas fa-upload"></i> Upload Files
-                </label>
-                <input type="file" id="fileInput" multiple style="display: none;">
-                <div class="upload-progress" id="uploadProgress" style="display: none;">
-                    <div class="progress-bar"></div>
-                    <p id="progressText">Uploading...</p>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <h3><i class="fas fa-filter"></i> Filter</h3>
-                <select id="fileFilter">
-                    <option value="all">All Files</option>
-                    <option value="image">Images</option>
-                    <option value="document">Documents</option>
-                    <option value="video">Videos</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-
-            <div class="search-section">
-                <input type="text" id="searchInput" placeholder="Search files...">
-                <i class="fas fa-search search-icon"></i>
-            </div>
-        </aside>
-
-        <!-- Main Content - File Grid -->
-        <main class="main-content">
-            <div class="files-header">
-                <h2><i class="fas fa-files"></i> My Files</h2>
-                <div class="view-toggle">
-                    <button id="gridView" class="active"><i class="fas fa-th"></i></button>
-                    <button id="listView"><i class="fas fa-list"></i></button>
-                </div>
-            </div>
-            
-            <div id="fileContainer" class="file-grid">
-                <!-- Files will be dynamically loaded here -->
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> Loading your files...
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modal for File Preview -->
-    <div id="previewModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="previewContent"></div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
-
-    <script src="app.js"></script>
+    <script>
+        // Hardcoded users database (for demo only - not secure!)
+        const users = {
+            'admin': { password: 'admin123', name: 'Administrator', role: 'admin' },
+            'user': { password: 'user123', name: 'Regular User', role: 'user' },
+            'guest': { password: 'guest', name: 'Guest User', role: 'guest' }
+        };
+        
+        // Check if user is already logged in (sessionStorage)
+        function checkLoginStatus() {
+            const loggedIn = sessionStorage.getItem('loggedIn');
+            const username = sessionStorage.getItem('username');
+            
+            if (loggedIn === 'true' && username) {
+                showDashboard(username);
+                return true;
+            }
+            return false;
+        }
+        
+        // Login function
+        function login(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            // Clear previous messages
+            messageDiv.style.display = 'none';
+            messageDiv.className = 'message';
+            
+            // Validate input
+            if (!username || !password) {
+                showMessage('Please enter both username and password', 'error');
+                return;
+            }
+            
+            // Check credentials
+            if (users[username] && users[username].password === password) {
+                // Store login info in sessionStorage (cleared when browser closes)
+                sessionStorage.setItem('loggedIn', 'true');
+                sessionStorage.setItem('username', username);
+                sessionStorage.setItem('userName', users[username].name);
+                sessionStorage.setItem('userRole', users[username].role);
+                
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                // Show dashboard after short delay
+                setTimeout(() => {
+                    showDashboard(username);
+                }, 1000);
+            } else {
+                showMessage('Invalid username or password', 'error');
+            }
+        }
+        
+        // Show dashboard
+        function showDashboard(username) {
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('dashboardView').style.display = 'block';
+            document.getElementById('displayName').textContent = sessionStorage.getItem('userName') || username;
+        }
+        
+        // Logout function
+        function logout() {
+            sessionStorage.clear();
+            document.getElementById('loginView').style.display = 'block';
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            showMessage('You have been logged out', 'success');
+        }
+        
+        // Show message helper
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                if (messageDiv.style.display === 'block') {
+                    messageDiv.style.display = 'none';
+                }
+            }, 3000);
+        }
+        
+        // Event listeners
+        document.getElementById('loginForm').addEventListener('submit', login);
+        
+        // Check if already logged in on page load
+        checkLoginStatus();
+        
+        // Optional: Add simple registration demo
+        console.log('Login system ready! Demo accounts: admin/admin123, user/user123, guest/guest');
+    </script>
 </body>
 </html>
