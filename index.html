@@ -2,269 +2,615 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login System Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>VAT Kiosk | Smart Compliance Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            background: #000;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ========== OPTIMIZED STARRY SKY BACKGROUND ========== */
+        .welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #020c15 0%, #000000 100%);
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            will-change: transform;
         }
         
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 400px;
+        /* GPU accelerated mist layers - mobile friendly */
+        .mist-layer,
+        .mist-layer-2,
+        .mist-layer-3 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            will-change: transform, opacity;
         }
         
-        h2 {
+        .mist-layer {
+            background: radial-gradient(ellipse at center, rgba(180, 210, 255, 0.08) 0%, rgba(80, 120, 180, 0.02) 60%, transparent 100%);
+            animation: mistFloatSlow 18s ease-in-out infinite;
+        }
+        
+        .mist-layer-2 {
+            background: repeating-linear-gradient(45deg, rgba(140, 200, 255, 0.04) 0px, rgba(140, 200, 255, 0.04) 2px, transparent 2px, transparent 18px);
+            animation: mistDriftHorizontal 25s linear infinite;
+            width: 200%;
+            height: 200%;
+        }
+        
+        .mist-layer-3 {
+            background: radial-gradient(circle at 40% 60%, rgba(100, 160, 230, 0.06) 0%, transparent 70%);
+            animation: mistBreathing 12s ease-in-out infinite;
+        }
+        
+        @keyframes mistFloatSlow {
+            0% { opacity: 0.25; transform: scale(1) translateZ(0); }
+            50% { opacity: 0.5; transform: scale(1.05) translateZ(0); }
+            100% { opacity: 0.25; transform: scale(1) translateZ(0); }
+        }
+        
+        @keyframes mistDriftHorizontal {
+            0% { transform: translateX(-15%) translateY(-5%) rotate(0deg) translateZ(0); opacity: 0.2; }
+            50% { transform: translateX(0%) translateY(2%) rotate(0.5deg) translateZ(0); opacity: 0.4; }
+            100% { transform: translateX(-15%) translateY(-5%) rotate(0deg) translateZ(0); opacity: 0.2; }
+        }
+        
+        @keyframes mistBreathing {
+            0%, 100% { opacity: 0.15; transform: scale(1) translateZ(0); }
+            50% { opacity: 0.3; transform: scale(1.08) translateZ(0); }
+        }
+        
+        /* Main content - responsive with touch-friendly sizing */
+        .welcome-content {
             text-align: center;
-            color: #333;
-            margin-bottom: 1.5rem;
+            animation: fadeInScale 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            max-width: 90vw;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 15;
+            backdrop-filter: blur(2px);
         }
         
-        .form-group {
-            margin-bottom: 1rem;
+        .welcome-logo {
+            width: min(160px, 38vw);
+            margin: 0 auto 20px auto;
+            filter: drop-shadow(0 0 15px rgba(30,136,229,0.6));
+            animation: gentlePulse 1.5s infinite alternate ease-in-out;
         }
         
-        label {
+        .welcome-logo img {
+            width: 100%;
+            border-radius: 32px;
+            background: rgba(30,136,229,0.12);
+            padding: 12px;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
             display: block;
-            margin-bottom: 0.5rem;
-            color: #555;
+            transition: transform 0.2s ease;
+        }
+        
+        .welcome-title {
+            font-size: clamp(1.6rem, 6.5vw, 2.8rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #7cb9f0, #ff9a8b, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .welcome-sub {
+            font-size: clamp(0.8rem, 3.5vw, 1.2rem);
+            color: #d4ecff;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 0.5s 0.25s forwards;
+            text-shadow: 0 0 8px rgba(30,136,229,0.4);
+            font-weight: 500;
+            padding: 0 8px;
+        }
+        
+        /* LARGE TOUCH TARGET - mobile optimized */
+        .start-button {
+            background: linear-gradient(145deg, #1e88e5, #e53935);
+            border: none;
+            padding: 14px 36px;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.4), 0 0 20px rgba(30,136,229,0.5);
+            letter-spacing: 1.5px;
+            margin-top: 15px;
+            width: auto;
+            min-width: 200px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            touch-action: manipulation;
+            will-change: transform;
+        }
+        
+        /* Active state for mobile touch feedback */
+        .start-button:active {
+            transform: scale(0.96);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 30px rgba(229,57,53,0.7);
+            transition: transform 0.08s linear;
+        }
+        
+        /* Hover only for devices that support hover (desktop) */
+        @media (hover: hover) {
+            .start-button:hover {
+                transform: scale(1.03);
+                box-shadow: 0 16px 36px rgba(0,0,0,0.5), 0 0 38px rgba(229,57,53,0.9);
+                letter-spacing: 2px;
+            }
+        }
+        
+        /* Keyframe animations - reduced motion preference respected */
+        @keyframes fadeInScale {
+            0% { transform: scale(0.85); opacity: 0; filter: blur(6px);}
+            100% { transform: scale(1); opacity: 1; filter: blur(0);}
+        }
+        
+        @keyframes gentlePulse {
+            0% { filter: drop-shadow(0 0 4px #1e88e5); transform: scale(0.98);}
+            100% { filter: drop-shadow(0 0 22px #e53935); transform: scale(1.02);}
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(18px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        
+        /* Audio hint - minimal and non-intrusive */
+        .audio-hint {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: rgba(180, 210, 255, 0.55);
+            z-index: 15;
+            pointer-events: none;
+            white-space: nowrap;
+            background: rgba(0,0,0,0.3);
+            padding: 4px 12px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            font-weight: 400;
+        }
+        
+        /* Loading overlay - GPU accelerated */
+        .loading-spinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s cubic-bezier(0.2, 0.9, 0.4, 1), visibility 0.3s;
+            will-change: opacity;
+        }
+        
+        .loading-spinner.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .spinner-content {
+            text-align: center;
+            transform: scale(0.95);
+            animation: spinnerFade 0.3s forwards;
+        }
+        
+        .spinner-circle {
+            width: 52px;
+            height: 52px;
+            border: 3.5px solid rgba(30,136,229,0.25);
+            border-top: 3.5px solid #e53935;
+            border-right: 3.5px solid #1e88e5;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin: 0 auto 18px;
+            will-change: transform;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes spinnerFade {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .spinner-text {
+            color: #eef5ff;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
             font-weight: 500;
         }
         
-        input {
+        /* Canvas star field - performance optimized */
+        .stars-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            height: 100%;
+            pointer-events: none;
+            display: block;
+            will-change: transform;
         }
         
-        input:focus {
-            outline: none;
-            border-color: #667eea;
+        /* Prevent content overflow on very small screens */
+        @media (max-width: 480px) {
+            .welcome-content {
+                padding: 1rem;
+            }
+            .start-button {
+                padding: 12px 28px;
+                font-size: 1.2rem;
+                min-width: 170px;
+            }
+            .welcome-logo {
+                margin-bottom: 12px;
+            }
+            .welcome-sub {
+                margin-bottom: 22px;
+            }
+            .audio-hint {
+                bottom: 12px;
+                font-size: 0.55rem;
+            }
         }
         
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
+        /* Ensure smooth rendering on mobile */
+        @supports (backdrop-filter: blur(2px)) {
+            .welcome-content {
+                backdrop-filter: blur(1.5px);
+            }
         }
         
-        button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .message {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            border-radius: 5px;
-            text-align: center;
-            display: none;
-        }
-        
-        .error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-        
-        .success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
-        }
-        
-        .info {
-            margin-top: 1rem;
-            text-align: center;
-            font-size: 0.875rem;
-            color: #666;
-        }
-        
-        .dashboard {
-            text-align: center;
-        }
-        
-        .dashboard h3 {
-            color: #667eea;
-            margin-bottom: 1rem;
-        }
-        
-        .logout-btn {
-            background: #dc3545;
-            margin-top: 1rem;
-        }
-        
-        .logout-btn:hover {
-            background: #c82333;
-        }
-        
-        .user-info {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 5px;
-            margin: 1rem 0;
+        /* Reduce animation if user prefers reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .welcome-content,
+            .mist-layer,
+            .mist-layer-2,
+            .mist-layer-3,
+            .welcome-logo,
+            .start-button {
+                animation: none !important;
+                transition: none !important;
+            }
+            .welcome-sub {
+                animation: none !important;
+                opacity: 1;
+            }
+            .loading-spinner {
+                transition: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container" id="app">
-        <!-- Login Form (shown by default) -->
-        <div id="loginView">
-            <h2>🔐 Login System</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" id="username" placeholder="Enter username" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" placeholder="Enter password" required>
-                </div>
-                <button type="submit">Login</button>
-            </form>
-            <div id="message" class="message"></div>
-            <div class="info">
-                <strong>Demo Accounts:</strong><br>
-                admin / admin123<br>
-                user / user123<br>
-                guest / guest
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <canvas id="starsCanvas" class="stars-canvas"></canvas>
+        <div class="mist-layer"></div>
+        <div class="mist-layer-2"></div>
+        <div class="mist-layer-3"></div>
+        <div class="welcome-content">
+            <div class="welcome-logo">
+                <img src="MGAALogo.jpg" alt="MGAA Official VAT Portal" onerror="this.src='https://placehold.co/180x180/1e3a5f/ffffff?text=MGAA&font=montserrat'">
             </div>
+            <div class="welcome-title">VAT TRACKING SYSTEM</div>
+            <div class="welcome-sub">Smart VAT Compliance • Kiosk Dashboard</div>
+            <button class="start-button" id="startButton"><i class="fas fa-charging-station" style="margin-right: 10px;"></i> OPEN PORTAL</button>
         </div>
-        
-        <!-- Dashboard (hidden by default) -->
-        <div id="dashboardView" style="display: none;">
-            <div class="dashboard">
-                <h2>✅ Dashboard</h2>
-                <div class="user-info">
-                    <strong>Welcome, <span id="displayName"></span>!</strong><br>
-                    You are now logged in.<br>
-                    <small>Session expires when you close the browser</small>
-                </div>
-                <button class="logout-btn" onclick="logout()">Logout</button>
-            </div>
+        <div class="audio-hint"><i class="fas fa-headphones-alt"></i> ambient interface</div>
+    </div>
+    
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-content">
+            <div class="spinner-circle"></div>
+            <div class="spinner-text"><i class="fas fa-chart-line"></i> Launching Secure Portal...</div>
         </div>
     </div>
 
     <script>
-        // Hardcoded users database (for demo only - not secure!)
-        const users = {
-            'admin': { password: 'admin123', name: 'Administrator', role: 'admin' },
-            'user': { password: 'user123', name: 'Regular User', role: 'user' },
-            'guest': { password: 'guest', name: 'Guest User', role: 'guest' }
-        };
-        
-        // Check if user is already logged in (sessionStorage)
-        function checkLoginStatus() {
-            const loggedIn = sessionStorage.getItem('loggedIn');
-            const username = sessionStorage.getItem('username');
-            
-            if (loggedIn === 'true' && username) {
-                showDashboard(username);
-                return true;
-            }
-            return false;
-        }
-        
-        // Login function
-        function login(event) {
-            event.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const messageDiv = document.getElementById('message');
-            
-            // Clear previous messages
-            messageDiv.style.display = 'none';
-            messageDiv.className = 'message';
-            
-            // Validate input
-            if (!username || !password) {
-                showMessage('Please enter both username and password', 'error');
-                return;
-            }
-            
-            // Check credentials
-            if (users[username] && users[username].password === password) {
-                // Store login info in sessionStorage (cleared when browser closes)
-                sessionStorage.setItem('loggedIn', 'true');
-                sessionStorage.setItem('username', username);
-                sessionStorage.setItem('userName', users[username].name);
-                sessionStorage.setItem('userRole', users[username].role);
+        (function() {
+            // ========== PERFORMANCE OPTIMIZED STARRY SKY ==========
+            // Only runs if canvas exists - with adaptive star density for mobile
+            const canvas = document.getElementById('starsCanvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                let stars = [];
+                let width, height;
+                let driftX = 0;
+                let animationFrameId = null;
+                let lastTimestamp = 0;
                 
-                showMessage('Login successful! Redirecting...', 'success');
-                
-                // Show dashboard after short delay
-                setTimeout(() => {
-                    showDashboard(username);
-                }, 1000);
-            } else {
-                showMessage('Invalid username or password', 'error');
-            }
-        }
-        
-        // Show dashboard
-        function showDashboard(username) {
-            document.getElementById('loginView').style.display = 'none';
-            document.getElementById('dashboardView').style.display = 'block';
-            document.getElementById('displayName').textContent = sessionStorage.getItem('userName') || username;
-        }
-        
-        // Logout function
-        function logout() {
-            sessionStorage.clear();
-            document.getElementById('loginView').style.display = 'block';
-            document.getElementById('dashboardView').style.display = 'none';
-            document.getElementById('loginForm').reset();
-            showMessage('You have been logged out', 'success');
-        }
-        
-        // Show message helper
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
-            messageDiv.className = `message ${type}`;
-            messageDiv.style.display = 'block';
-            
-            // Auto-hide after 3 seconds
-            setTimeout(() => {
-                if (messageDiv.style.display === 'block') {
-                    messageDiv.style.display = 'none';
+                // Optimized resize handler with debounce
+                let resizeTimeout;
+                function handleResize() {
+                    if (resizeTimeout) clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        resizeCanvas();
+                    }, 100);
                 }
-            }, 3000);
-        }
-        
-        // Event listeners
-        document.getElementById('loginForm').addEventListener('submit', login);
-        
-        // Check if already logged in on page load
-        checkLoginStatus();
-        
-        // Optional: Add simple registration demo
-        console.log('Login system ready! Demo accounts: admin/admin123, user/user123, guest/guest');
+                
+                function resizeCanvas() {
+                    width = window.innerWidth;
+                    height = window.innerHeight;
+                    canvas.width = width;
+                    canvas.height = height;
+                    initStarsOptimized();
+                }
+                
+                // Adaptive star count based on device performance
+                function initStarsOptimized() {
+                    stars = [];
+                    // Use screen area but cap for mobile performance (fewer stars = smoother)
+                    let pixelFactor = width * height;
+                    let starCount;
+                    if (pixelFactor < 300000) {       // small phones
+                        starCount = 120;
+                    } else if (pixelFactor < 700000) { // typical phones
+                        starCount = 200;
+                    } else {                            // tablets / large screens
+                        starCount = 300;
+                    }
+                    
+                    for (let i = 0; i < starCount; i++) {
+                        stars.push({
+                            x: Math.random() * width * 1.6,
+                            y: Math.random() * height,
+                            radius: Math.random() * 1.8 + 0.5,
+                            alpha: Math.random() * 0.7 + 0.2,
+                            twinkleSpeed: 0.5 + Math.random() * 1.8,
+                            phase: Math.random() * Math.PI * 2,
+                            parallax: 0.3 + Math.random() * 0.6
+                        });
+                    }
+                }
+                
+                let time = 0;
+                let lastFrameTime = 0;
+                
+                function drawStars(now) {
+                    if (!ctx || !canvas || !canvas.width || !canvas.height) {
+                        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                        return;
+                    }
+                    
+                    // Throttle animation to 60fps max but keep smooth
+                    animationFrameId = requestAnimationFrame(drawStars);
+                    
+                    time += 0.016; // smooth consistent drift
+                    driftX = (driftX + 0.12) % (width * 0.45);
+                    
+                    ctx.clearRect(0, 0, width, height);
+                    
+                    // batch drawing for performance (avoid too many ctx calls overhead)
+                    for (let star of stars) {
+                        const twinkle = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(time * star.twinkleSpeed + star.phase));
+                        let opacity = Math.min(0.9, star.alpha * twinkle);
+                        let driftOffset = (driftX * star.parallax) % (width * 1.3);
+                        let starX = star.x + driftOffset;
+                        if (starX > width) starX = starX - width;
+                        if (starX < -20) starX = width + starX;
+                        
+                        ctx.beginPath();
+                        ctx.arc(starX, star.y, star.radius, 0, Math.PI * 2);
+                        // Fast fill style without shadow for most stars
+                        ctx.fillStyle = `rgba(255, 248, 225, ${opacity})`;
+                        ctx.fill();
+                        
+                        // Add subtle glow only on brighter stars and reduce shadow calls
+                        if (opacity > 0.68 && star.radius > 1.0) {
+                            ctx.shadowBlur = 4;
+                            ctx.shadowColor = `rgba(255, 200, 100, 0.4)`;
+                            ctx.fill();
+                            ctx.shadowBlur = 0;
+                        }
+                    }
+                }
+                
+                window.addEventListener('resize', handleResize);
+                resizeCanvas();
+                animationFrameId = requestAnimationFrame(drawStars);
+                
+                // Cleanup possible memory on page unload (good practice)
+                window.addEventListener('beforeunload', function() {
+                    if (animationFrameId) {
+                        cancelAnimationFrame(animationFrameId);
+                    }
+                });
+            }
+            
+            // ========== AUDIO PLAYBACK - MOBILE FRIENDLY (startup.mp3) ==========
+            let audioPlayer = null;
+            let audioAttempted = false;
+            
+            // Function to init audio with user interaction (respects mobile autoplay policies)
+            function initAudio() {
+                if (audioPlayer) {
+                    if (audioPlayer.paused) {
+                        audioPlayer.play().catch(e => console.log("Audio resume failed:", e));
+                    }
+                    return;
+                }
+                
+                try {
+                    audioPlayer = new Audio('startup.mp3');
+                    audioPlayer.loop = true;
+                    audioPlayer.volume = 0.42;
+                    audioPlayer.preload = 'auto';
+                    // Optimize for mobile data/battery
+                    audioPlayer.load();
+                    audioPlayer.play().catch(e => {
+                        console.log("Auto-play blocked, waiting for explicit interaction");
+                        // Still set the player so it can be played later on button click
+                    });
+                } catch(e) {
+                    console.log("Audio not supported");
+                }
+            }
+            
+            function playAmbientMusic() {
+                if (audioPlayer) {
+                    if (!audioPlayer.paused) return;
+                    audioPlayer.play().catch(e => console.log("playback error:", e));
+                } else {
+                    // create and play
+                    audioPlayer = new Audio('startup.mp3');
+                    audioPlayer.loop = true;
+                    audioPlayer.volume = 0.42;
+                    audioPlayer.play().catch(e => console.log("deferred audio play prevented"));
+                }
+            }
+            
+            // ========== REDIRECT WITH ELEVATED MOBILE EXPERIENCE ==========
+            const startButton = document.getElementById('startButton');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const welcomeOverlay = document.getElementById('welcomeOverlay');
+            
+            // Helper for seamless transition + prefetch optimization
+            let redirectInProgress = false;
+            
+            function redirectToDashboard() {
+                if (redirectInProgress) return;
+                redirectInProgress = true;
+                
+                // Audio initiation (play background music on user gesture - perfect for mobile)
+                if (audioPlayer) {
+                    if (audioPlayer.paused) {
+                        audioPlayer.play().catch(e => console.log("Audio play on click error", e));
+                    }
+                } else {
+                    // Create and play music right after click (bypass mobile restrictions)
+                    audioPlayer = new Audio('startup.mp3');
+                    audioPlayer.loop = true;
+                    audioPlayer.volume = 0.45;
+                    audioPlayer.play().catch(e => console.log("Audio playback failed, but portal continues"));
+                }
+                
+                // Show loading overlay
+                loadingSpinner.classList.add('active');
+                
+                // Smooth fade out of welcome content for better UX
+                const welcomeContent = document.querySelector('.welcome-content');
+                if (welcomeContent) {
+                    welcomeContent.style.transition = 'opacity 0.4s ease, transform 0.3s ease';
+                    welcomeContent.style.opacity = '0';
+                    welcomeContent.style.transform = 'scale(0.96)';
+                }
+                
+                // Slight haptic feedback vibration on supported devices (optional - enhances feel)
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(20);
+                }
+                
+                // Prefetch and redirect with minimal delay
+                setTimeout(() => {
+                    // Use location replace to avoid back-button issues on kiosk style
+                    window.location.replace('index2.html');
+                }, 480);
+            }
+            
+            if (startButton) {
+                // Touch + mouse event for maximum compatibility
+                startButton.addEventListener('click', redirectToDashboard);
+                startButton.addEventListener('touchstart', function(e) {
+                    // Ensure no double-firing on hybrid devices
+                    if (e.cancelable) e.preventDefault();
+                    redirectToDashboard();
+                }, { passive: false });
+            }
+            
+            // Prefetch the dashboard resource for instant loading (especially on mobile networks)
+            if ('connection' in navigator && navigator.connection && navigator.connection.saveData === false) {
+                const prefetchLink = document.createElement('link');
+                prefetchLink.rel = 'prefetch';
+                prefetchLink.href = 'index2.html';
+                document.head.appendChild(prefetchLink);
+            } else {
+                // fallback prefetch
+                const prefetchLink = document.createElement('link');
+                prefetchLink.rel = 'prefetch';
+                prefetchLink.href = 'index2.html';
+                document.head.appendChild(prefetchLink);
+            }
+            
+            // Warm up audio on first user interaction anywhere (extra reliability for mobile)
+            function warmupAudioOnFirstTouch() {
+                if (audioAttempted) return;
+                audioAttempted = true;
+                if (!audioPlayer) {
+                    audioPlayer = new Audio('startup.mp3');
+                    audioPlayer.loop = true;
+                    audioPlayer.volume = 0.45;
+                    audioPlayer.load();
+                }
+                // play silent? just preload
+                document.removeEventListener('touchstart', warmupAudioOnFirstTouch);
+                document.removeEventListener('click', warmupAudioOnFirstTouch);
+            }
+            
+            // Pre-initialize audio on any gentle user tap (improves responsiveness)
+            document.addEventListener('touchstart', warmupAudioOnFirstTouch, { once: true, passive: true });
+            document.addEventListener('click', warmupAudioOnFirstTouch, { once: true });
+            
+            // Optional: If the logo image fails, ensure placeholder is visible graceful
+            const logoImg = document.querySelector('.welcome-logo img');
+            if (logoImg) {
+                logoImg.addEventListener('error', function() {
+                    this.src = 'https://placehold.co/180x180/1e3a5f/ffffff?text=MGAA&font=montserrat';
+                });
+            }
+            
+            // Small enhancement: add a tiny entrance animation to button
+            setTimeout(() => {
+                if (startButton) {
+                    startButton.style.opacity = '1';
+                }
+            }, 50);
+        })();
     </script>
 </body>
 </html>

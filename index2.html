@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>VAT Kiosk | Smart Compliance Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== OPTIMIZED FOR MOBILE - FAST & SMOOTH ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-blue: #1e88e5;
+            --primary-red: #e53935;
+            --card-bg: rgba(25, 45, 65, 0.92);
+            --text-color: #f0f8ff;
+            --text-secondary: #c6e2ff;
+            --sidebar-bg: rgba(8, 24, 40, 0.98);
+            --sidebar-width: 260px;
+            --sidebar-collapsed: 0px;
+            --border-mix: rgba(230, 100, 120, 0.4);
+        }
+
+        html {
+            overflow-x: hidden;
+            height: 100%;
+        }
+
+        body {
+            background: linear-gradient(135deg, rgba(11, 26, 42, 0.92), rgba(26, 38, 53, 0.95)), 
+                        url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgdmlld0JveD0iMCAwIDQwIDQwIj48cGF0aCBmaWxsPSIjMjI4OGU1IiBmaWxsLW9wYWNpdHk9IjAuMDQiIGQ9Ik0wIDBoNDB2NDBIMHoiLz48cGF0aCBkPSJNMjAgMjBhMTAgMTAgMCAwIDEgMCAyMCAxMCAxMCAwIDAgMSAwLTIweiIgZmlsbD0iI2U1MzkzNSIgZmlsbC1vcGFjaXR5PSIwLjAyIi8+PC9zdmc+') repeat;
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 12px;
+            overflow-x: hidden;
+            position: relative;
+            transition: margin-left 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        body.sidebar-open {
+            margin-left: var(--sidebar-width);
+        }
+
+        /* Sidebar - mobile optimized */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-mix);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.5);
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            padding: 18px 16px;
+            border-bottom: 1px solid var(--border-mix);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 40, 55, 0.6);
+        }
+
+        .sidebar-title {
+            font-size: 1.2rem;
+            background: linear-gradient(145deg, #64b5f6, #ff8a80);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        .sidebar-toggle {
+            background: rgba(30,136,229,0.2);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+            transition: all 0.2s;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .sidebar-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            background: rgba(20, 45, 65, 0.6);
+            border-radius: 12px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .sidebar-btn:active {
+            transform: scale(0.97);
+            background: rgba(30,136,229,0.3);
+        }
+
+        .sidebar-btn i {
+            width: 24px;
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+        }
+
+        .sidebar-btn-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .sidebar-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-blue), var(--primary-red), transparent);
+            margin: 10px 0;
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            text-align: center;
+            font-size: 0.7rem;
+            border-top: 1px solid var(--border-mix);
+            color: #90b4d4;
+        }
+
+        /* Floating menu buttons */
+        .floating-menu {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: 48px;
+            height: 48px;
+            background: rgba(8, 24, 40, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            border: 1px solid var(--border-mix);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+
+        .floating-menu:active {
+            transform: scale(0.94);
+        }
+
+        .floating-menu i {
+            font-size: 1.4rem;
+            background: linear-gradient(145deg, var(--primary-blue), var(--primary-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .floating-menu-right {
+            left: auto;
+            right: 16px;
+            top: 16px;
+        }
+
+        /* Main container - no weird scaling */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header section */
+        header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(15, 35, 50, 0.7);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 15px 18px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-mix);
+            flex-wrap: wrap;
+        }
+
+        .logo-container {
+            width: 65px;
+            height: 65px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+
+        .header-text h1 {
+            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            background: linear-gradient(135deg, #7cb9f0, #ff8a8a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header-text p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .system-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.4);
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            margin-top: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); background: var(--primary-red); }
+        }
+
+        /* Grid container - touch friendly */
+        .dashboard-title {
+            text-align: center;
+            font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+            margin: 15px 0 20px;
+            background: linear-gradient(145deg, var(--primary-blue), var(--primary-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* Mobile optimized buttons - large touch targets */
+        .kiosk-button {
+            background: linear-gradient(145deg, var(--card-bg), rgba(35, 55, 75, 0.95));
+            border: 1px solid var(--border-mix);
+            border-radius: 20px;
+            padding: 18px 10px;
+            text-decoration: none;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+            position: relative;
+            min-height: 130px;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .kiosk-button:active {
+            transform: scale(0.96);
+            background: rgba(30,136,229,0.3);
+        }
+
+        .button-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: var(--primary-blue);
+        }
+
+        .button-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .button-description {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .button-badge {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: linear-gradient(145deg, var(--primary-blue), var(--primary-red));
+            padding: 3px 8px;
+            border-radius: 30px;
+            font-size: 0.6rem;
+            font-weight: bold;
+        }
+
+        /* Right Sidebar - TIN Library */
+        .right-sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            height: 100vh;
+            width: 300px;
+            background: rgba(8, 24, 40, 0.98);
+            backdrop-filter: blur(16px);
+            border-left: 1px solid var(--border-mix);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: -4px 0 25px rgba(0,0,0,0.5);
+        }
+
+        .right-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .right-sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-mix);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .right-sidebar-toggle {
+            background: rgba(30,136,229,0.2);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--primary-red);
+        }
+
+        .tin-search-area {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-mix);
+        }
+
+        .tin-search-box {
+            display: flex;
+            background: rgba(0,0,0,0.4);
+            border-radius: 40px;
+            border: 1px solid var(--border-mix);
+            padding: 6px 12px;
+        }
+
+        .tin-search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 10px 5px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .tin-search-box input::placeholder {
+            color: #9bbcdb;
+        }
+
+        .search-icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary-blue);
+            padding: 0 8px;
+            cursor: pointer;
+        }
+
+        .tin-add-section {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-mix);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tin-input-group label {
+            font-size: 0.7rem;
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+        }
+
+        .tin-input-group input {
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-mix);
+            padding: 10px 12px;
+            border-radius: 14px;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .add-tin-btn {
+            background: linear-gradient(145deg, #1e88e5, #e53935);
+            border: none;
+            padding: 10px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        .tin-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tin-card {
+            background: rgba(20, 45, 65, 0.7);
+            border-radius: 16px;
+            padding: 12px;
+            border: 1px solid var(--border-mix);
+        }
+
+        .tin-number {
+            font-family: monospace;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: #ffb74d;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .tin-name {
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .tin-actions-row {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(255,255,200,0.2);
+        }
+
+        .copy-icon, .delete-icon {
+            background: rgba(255,255,240,0.12);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .copy-icon:active, .delete-icon:active {
+            transform: scale(0.94);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            background: rgba(15, 35, 50, 0.6);
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+
+        /* Music control */
+        .music-control {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            width: 44px;
+            height: 44px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 998;
+            border: 1px solid var(--border-mix);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-red);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 550px) {
+            .grid-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .button-description {
+                display: none;
+            }
+            .kiosk-button {
+                padding: 14px 6px;
+                min-height: 100px;
+            }
+            .floating-menu {
+                width: 42px;
+                height: 42px;
+            }
+            body.sidebar-open {
+                margin-left: 0;
+            }
+            .sidebar {
+                width: 85%;
+                max-width: 280px;
+            }
+            .right-sidebar {
+                width: 85%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .temp-toast {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e88e5;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            z-index: 9999;
+            white-space: nowrap;
+            animation: fadeOutMsg 2s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeOutMsg {
+            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+            70% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-10px); visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Menu Buttons -->
+    <div class="floating-menu" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    <div class="floating-menu floating-menu-right" id="rightMenuToggle">
+        <i class="fas fa-id-card"></i>
+    </div>
+
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Navigation</span>
+            <button class="sidebar-toggle" id="closeSidebar"><i class="fas fa-chevron-left"></i></button>
+        </div>
+        <div class="sidebar-nav">
+            <a href="index.html" class="sidebar-btn"><i class="fas fa-home"></i><span class="sidebar-btn-text">Startup</span></a>
+            <div class="sidebar-divider"></div>
+            <a href="tax_facts.html" class="sidebar-btn"><i class="fas fa-book"></i><span class="sidebar-btn-text">Tax Facts</span></a>
+            <a href="tax_calculator.html" class="sidebar-btn"><i class="fas fa-calculator"></i><span class="sidebar-btn-text">Tax Calculator</span></a>
+            <a href="compensation.html" class="sidebar-btn"><i class="fas fa-money-check-alt"></i><span class="sidebar-btn-text">Compensation</span></a>
+            <a href="tax_game.html" class="sidebar-btn"><i class="fas fa-gamepad"></i><span class="sidebar-btn-text">Tax Game</span></a>
+            <div class="sidebar-divider"></div>
+            <a href="quick_guide.html" class="sidebar-btn"><i class="fas fa-compass"></i><span class="sidebar-btn-text">Quick Guide</span></a>
+            <a href="#" class="sidebar-btn" id="helpBtn"><i class="fas fa-life-ring"></i><span class="sidebar-btn-text">Help</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <p>MGAA VAT System v2.0</p>
+            <p>© 2026</p>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR - TIN Library -->
+    <div class="right-sidebar" id="rightSidebar">
+        <div class="right-sidebar-header">
+            <span class="sidebar-title" style="background: linear-gradient(145deg,#ff8a80,#64b5f6);-webkit-background-clip:text;">📁 TIN Library</span>
+            <button class="right-sidebar-toggle" id="closeRightSidebar"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="tin-search-area">
+            <div class="tin-search-box">
+                <input type="text" id="tinSearch" placeholder="Search name or TIN..." autocomplete="off">
+                <button class="search-icon-btn" id="searchTinBtn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        <div class="tin-add-section">
+            <div class="tin-input-group"><label><i class="fas fa-user"></i> Name</label><input type="text" id="tinName" placeholder="e.g., Juan Dela Cruz" autocomplete="off"></div>
+            <div class="tin-input-group"><label><i class="fas fa-hashtag"></i> 12-digit TIN</label><input type="text" id="tinNumber" placeholder="123-456-789-012" maxlength="15" autocomplete="off"></div>
+            <button class="add-tin-btn" id="addTinBtn"><i class="fas fa-plus-circle"></i> Add TIN</button>
+        </div>
+        <div class="tin-list-container" id="tinList"></div>
+        <div class="sidebar-footer"><i class="fas fa-save"></i> Auto-saved locally</div>
+    </div>
+
+    <!-- Music Toggle -->
+    <div class="music-control" id="musicControl">
+        <i class="fas fa-music"></i>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="container">
+        <header>
+            <div class="logo-container"><img src="MGAALogo.jpg" alt="MGAA" class="logo-img" id="logoImg" onerror="this.src='https://placehold.co/80x80/1e3a5f/white?text=MGAA'"></div>
+            <div class="header-text">
+                <h1>VAT Tracking System</h1>
+                <p>Kiosk Dashboard | Real-time VAT Compliance</p>
+                <div class="system-status"><div class="status-indicator"></div><span>All Modules Active</span></div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <h2 class="dashboard-title">📊 Select Tracking Module</h2>
+            <div class="grid-container">
+                <a href="journal_entry.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-journal-whills"></i></div><div class="button-title">Journal Entry</div><div class="button-description">Debits & Credits tally</div><div class="button-badge">LEDGER</div></a>
+                <a href="vatable_sales.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-file-invoice-dollar"></i></div><div class="button-title">VAT Sales</div><div class="button-description">Output tax tracking</div><div class="button-badge">VAT</div></a>
+                <a href="vatable_purchases.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-shopping-cart"></i></div><div class="button-title">VAT Purchases</div><div class="button-description">Input tax tracking</div><div class="button-badge">VAT</div></a>
+                <a href="vatable_expenses.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-money-bill-wave"></i></div><div class="button-title">VAT Expenses</div><div class="button-description">Expense VAT</div><div class="button-badge">VAT</div></a>
+                <a href="non_vat_purchases.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-shopping-basket"></i></div><div class="button-title">Non-VAT Purchases</div><div class="button-description">Exempt purchases</div><div class="button-badge">NON-VAT</div></a>
+                <a href="non_vat_expenses.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-receipt"></i></div><div class="button-title">Non-VAT Expenses</div><div class="button-description">Exempt expenses</div><div class="button-badge">NON-VAT</div></a>
+                <a href="capex.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-building"></i></div><div class="button-title">Capital Exp.</div><div class="button-description">Asset acquisitions</div><div class="button-badge">CAPEX</div></a>
+                <a href="taxes_licenses.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-id-card"></i></div><div class="button-title">Taxes & Licenses</div><div class="button-description">Gov fees & permits</div><div class="button-badge">GOV</div></a>
+                <a href="purchase_returns.html" class="kiosk-button"><div class="button-icon"><i class="fas fa-undo-alt"></i></div><div class="button-title">Purchase Returns</div><div class="button-description">VAT adjustments</div><div class="button-badge">RETURNS</div></a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 MGAA VAT Tracking System | Professional Kiosk Interface</p>
+            <div style="margin-top: 8px;"><a href="quick_guide.html" style="color: var(--primary-red); text-decoration: none;">📘 Quick Guide</a> | <a href="#" id="footerHelp" style="color: var(--primary-blue); text-decoration: none;">❓ Help</a></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------------------- SIDEBAR LOGIC (Mobile Friendly) ----------------------
+            const sidebar = document.getElementById('sidebar');
+            const rightSidebar = document.getElementById('rightSidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+            const rightMenuToggle = document.getElementById('rightMenuToggle');
+            const closeRightSidebar = document.getElementById('closeRightSidebar');
+            const body = document.body;
+
+            function openLeftSidebar(open) {
+                if(open) {
+                    sidebar.classList.add('open');
+                    body.classList.add('sidebar-open');
+                } else {
+                    sidebar.classList.remove('open');
+                    body.classList.remove('sidebar-open');
+                }
+            }
+
+            function openRightSidebar(open) {
+                if(open) {
+                    rightSidebar.classList.add('open');
+                } else {
+                    rightSidebar.classList.remove('open');
+                }
+            }
+
+            if(menuToggle) menuToggle.addEventListener('click', () => openLeftSidebar(true));
+            if(closeSidebar) closeSidebar.addEventListener('click', () => openLeftSidebar(false));
+            if(rightMenuToggle) rightMenuToggle.addEventListener('click', () => openRightSidebar(true));
+            if(closeRightSidebar) closeRightSidebar.addEventListener('click', () => openRightSidebar(false));
+
+            // Close on clicking outside (simple)
+            document.addEventListener('click', function(e) {
+                if(sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    openLeftSidebar(false);
+                }
+                if(rightSidebar.classList.contains('open') && !rightSidebar.contains(e.target) && !rightMenuToggle.contains(e.target)) {
+                    openRightSidebar(false);
+                }
+            });
+
+            // Help buttons
+            const helpBtn = document.getElementById('helpBtn');
+            const footerHelp = document.getElementById('footerHelp');
+            const goHelp = () => { window.location.href = 'quick_guide.html'; };
+            if(helpBtn) helpBtn.addEventListener('click', (e) => { e.preventDefault(); goHelp(); });
+            if(footerHelp) footerHelp.addEventListener('click', (e) => { e.preventDefault(); goHelp(); });
+
+            // Logo fallback
+            const logoImg = document.getElementById('logoImg');
+            if(logoImg && logoImg.complete && logoImg.naturalWidth === 0) {
+                logoImg.src = 'https://placehold.co/80x80/1e3a5f/white?text=MGAA';
+            }
+
+            // ---------------------- MUSIC PLAYER (optimized, no auto-force) ----------------------
+            let audio = null;
+            let isPlaying = false;
+            const musicBtn = document.getElementById('musicControl');
+            const musicIcon = musicBtn ? musicBtn.querySelector('i') : null;
+
+            function initAudio() {
+                if(!audio) {
+                    audio = new Audio('startup.mp3');
+                    audio.loop = true;
+                    audio.volume = 0.35;
+                    audio.preload = 'metadata';
+                }
+            }
+
+            function startMusic() {
+                initAudio();
+                audio.play().then(() => {
+                    isPlaying = true;
+                    if(musicIcon) {
+                        musicIcon.classList.remove('fa-music');
+                        musicIcon.classList.add('fa-stop');
+                    }
+                }).catch(e => console.log("Audio autoplay blocked, waiting for interaction"));
+            }
+
+            function stopMusic() {
+                if(audio) {
+                    audio.pause();
+                    isPlaying = false;
+                    if(musicIcon) {
+                        musicIcon.classList.remove('fa-stop');
+                        musicIcon.classList.add('fa-music');
+                    }
+                }
+            }
+
+            function toggleMusic() {
+                if(isPlaying) {
+                    stopMusic();
+                } else {
+                    if(!audio) initAudio();
+                    startMusic();
+                }
+            }
+
+            if(musicBtn) {
+                musicBtn.addEventListener('click', toggleMusic);
+                // gentle attempt after user gesture (won't autoplay aggressively)
+                document.body.addEventListener('touchstart', function once() {
+                    if(!audio && !isPlaying) {
+                        initAudio();
+                    }
+                    document.body.removeEventListener('touchstart', once);
+                }, { once: true });
+                
+                setTimeout(() => {
+                    initAudio();
+                }, 300);
+            }
+
+            // ---------------------- TIN LIBRARY (localStorage) ----------------------
+            let tinEntries = [];
+            const tinListContainer = document.getElementById('tinList');
+            const tinSearchInput = document.getElementById('tinSearch');
+            const tinNameInput = document.getElementById('tinName');
+            const tinNumberInput = document.getElementById('tinNumber');
+            const addBtn = document.getElementById('addTinBtn');
+            const searchBtn = document.getElementById('searchTinBtn');
+
+            function saveTinToLocal() {
+                localStorage.setItem('vat_tin_library', JSON.stringify(tinEntries));
+            }
+
+            function loadTinLibrary() {
+                const stored = localStorage.getItem('vat_tin_library');
+                if(stored) {
+                    try {
+                        tinEntries = JSON.parse(stored);
+                    } catch(e) { tinEntries = []; }
+                }
+                if(!tinEntries || tinEntries.length === 0) {
+                    tinEntries = [
+                        { id: Date.now()+1, name: "Maria Dela Cruz", tin: "123-456-789-012" },
+                        { id: Date.now()+2, name: "Ramon Trading Corp", tin: "987-654-321-001" },
+                        { id: Date.now()+3, name: "VAT Solutions Inc", tin: "456-789-123-555" }
+                    ];
+                    saveTinToLocal();
+                }
+                renderTinList();
+            }
+
+            function renderTinList(filter = "") {
+                if(!tinListContainer) return;
+                let filtered = [...tinEntries];
+                if(filter.trim() !== "") {
+                    const lower = filter.toLowerCase();
+                    filtered = tinEntries.filter(entry => 
+                        entry.name.toLowerCase().includes(lower) || entry.tin.includes(lower)
+                    );
+                }
+                if(filtered.length === 0) {
+                    tinListContainer.innerHTML = `<div class="empty-message" style="text-align:center;padding:25px;"><i class="fas fa-database"></i> No TIN entries</div>`;
+                    return;
+                }
+                tinListContainer.innerHTML = filtered.map(entry => `
+                    <div class="tin-card" data-id="${entry.id}">
+                        <div class="tin-number"><span><i class="fas fa-hashtag"></i> ${escapeHtml(entry.tin)}</span></div>
+                        <div class="tin-name"><i class="fas fa-user-circle"></i> ${escapeHtml(entry.name)}</div>
+                        <div class="tin-actions-row">
+                            <span class="copy-icon" data-tin="${entry.tin}"><i class="fas fa-copy"></i> Copy</span>
+                            <span class="delete-icon" data-id="${entry.id}"><i class="fas fa-trash"></i> Delete</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.copy-icon').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const tinVal = el.getAttribute('data-tin');
+                        navigator.clipboard.writeText(tinVal).then(() => showToast("✓ TIN copied!"));
+                    });
+                });
+                document.querySelectorAll('.delete-icon').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const id = parseInt(el.getAttribute('data-id'));
+                        const entry = tinEntries.find(x => x.id === id);
+                        if(entry && confirm(`Delete "${entry.name}"?`)) {
+                            tinEntries = tinEntries.filter(x => x.id !== id);
+                            saveTinToLocal();
+                            renderTinList(tinSearchInput ? tinSearchInput.value : "");
+                            showToast("🗑️ Deleted");
+                        }
+                    });
+                });
+            }
+
+            function addTinEntry() {
+                let name = tinNameInput.value.trim();
+                let rawTin = tinNumberInput.value.trim().replace(/-/g, '');
+                if(!name) { showToast("Please enter name"); return; }
+                if(rawTin.length !== 12 || !/^\d+$/.test(rawTin)) { showToast("Invalid TIN: need 12 digits"); return; }
+                const formatted = rawTin.slice(0,3)+'-'+rawTin.slice(3,6)+'-'+rawTin.slice(6,9)+'-'+rawTin.slice(9,12);
+                if(tinEntries.some(e => e.name.toLowerCase() === name.toLowerCase())) { showToast("Name already exists"); return; }
+                tinEntries.push({ id: Date.now(), name: name, tin: formatted });
+                saveTinToLocal();
+                tinNameInput.value = "";
+                tinNumberInput.value = "";
+                if(tinSearchInput) tinSearchInput.value = "";
+                renderTinList("");
+                showToast("✅ TIN added!");
+            }
+
+            function escapeHtml(str) {
+                return str.replace(/[&<>]/g, function(m) {
+                    if(m === '&') return '&amp;';
+                    if(m === '<') return '&lt;';
+                    if(m === '>') return '&gt;';
+                    return m;
+                });
+            }
+
+            function showToast(msg) {
+                const existing = document.querySelector('.temp-toast');
+                if(existing) existing.remove();
+                const toast = document.createElement('div');
+                toast.className = 'temp-toast';
+                toast.innerText = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 1800);
+            }
+
+            if(addBtn) addBtn.addEventListener('click', addTinEntry);
+            if(searchBtn) searchBtn.addEventListener('click', () => renderTinList(tinSearchInput.value));
+            if(tinSearchInput) tinSearchInput.addEventListener('keyup', (e) => { if(e.key === 'Enter') renderTinList(tinSearchInput.value); });
+            
+            // Auto-format TIN input
+            if(tinNumberInput) {
+                tinNumberInput.addEventListener('input', function(e) {
+                    let val = e.target.value.replace(/-/g, '').replace(/\D/g, '').slice(0,12);
+                    let fmt = '';
+                    if(val.length > 0) fmt = val.slice(0,3);
+                    if(val.length >= 4) fmt += '-' + val.slice(3,6);
+                    if(val.length >= 7) fmt += '-' + val.slice(6,9);
+                    if(val.length >= 10) fmt += '-' + val.slice(9,12);
+                    e.target.value = fmt;
+                });
+            }
+
+            loadTinLibrary();
+        })();
+    </script>
+</body>
+</html>
